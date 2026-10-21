@@ -1,0 +1,22 @@
+{
+  "name": "chat-rescue-h5",
+  "version": "1.1.0",
+  "private": true,
+  "description": "朋友圈小范围测试版：截图/文字/语音聊天救场 + PWA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check api/analyze.js && node --check api/topics.js && node --check api/healthz.js && node --check scripts/check-key.js && node --check sw.js",
+    "check:key": "node scripts/check-key.js",
+    "test": "node test/internals.test.js && node test/html-audit.js && node test/api.test.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0"
+  }
+}

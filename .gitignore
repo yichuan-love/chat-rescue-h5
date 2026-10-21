@@ -1,0 +1,29 @@
+# ===== 依赖目录（体积大，不上传，服务器/平台会自己安装）=====
+node_modules/
+.npm-cache/
+
+# ===== 环境变量（含 API Key 等密钥，绝对禁止上传）=====
+# 注意：.env.example 是不含密钥的模板，不在忽略范围内，会正常上传
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.*.local
+
+# ===== 平台 / 工具本地配置 =====
+.edge-profile/
+.vercel/
+
+# ===== 日志 =====
+npm-debug.log*
+*.log
+
+# ===== 操作系统与编辑器残留 =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ===== 构建输出目录 =====
+dist/
+coverage/
