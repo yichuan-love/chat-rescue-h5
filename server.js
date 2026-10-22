@@ -18,7 +18,7 @@ const ZHIPU_API_URL =
   process.env.ZHIPU_API_URL || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 const ZHIPU_MODEL = (process.env.ZHIPU_MODEL || 'glm-4v-flash').trim();
 const ZHIPU_TEXT_MODEL = (process.env.ZHIPU_TEXT_MODEL || ZHIPU_MODEL).trim();
-const REQUEST_TIMEOUT_MS = clampNumber(Number(process.env.ZHIPU_TIMEOUT_MS), 1000, 25000, 8000);
+const REQUEST_TIMEOUT_MS = clampNumber(Number(process.env.ZHIPU_TIMEOUT_MS), 1000, 28000, 25000);
 const ZHIPU_AUTH_MODE = ['auto', 'jwt', 'raw'].includes(
   String(process.env.ZHIPU_AUTH_MODE || '').toLowerCase(),
 )
@@ -40,7 +40,7 @@ const RATE_LIMIT_WINDOW_MS = clampNumber(
 const BODY_LIMIT = '3mb';
 // glm-4v-flash 的 max_tokens 上限是 1024。
 const MAX_OUTPUT_TOKENS = 1024;
-const MAX_IMAGE_CHARS = 2_400_000;
+const MAX_IMAGE_CHARS = 1_800_000;
 const MAX_TEXT_CHARS = 4000;
 const DATA_URL_PATTERN =
   /^data:image\/(?:jpeg|jpg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;

@@ -10,7 +10,7 @@
 - **结果操作**：每条回复一键复制；「🔄 换一批话术」保留上下文重新生成；「💡 接下来聊什么？」生成 2 个延伸话题。
 - **PWA**：`manifest.json` + Service Worker + 图标，可添加到手机主屏幕，`display: standalone` 无浏览器地址栏。
 - **阅后即焚**：不使用 LocalStorage / SessionStorage，刷新页面即清空输入和结果；截图只在内存中转发，不落盘。
-- **轻量保护**：单 IP 每分钟 5 次、上游 8 秒超时、单并发闸门、429 / 401 友好提示。
+- **轻量保护**：单 IP 每分钟 5 次、上游 25 秒超时、单并发闸门、429 / 401 友好提示。
 
 ## 文件结构
 
@@ -78,7 +78,7 @@ npm run check
 | `ZHIPU_TEXT_MODEL` | 否 | 纯文字分析模型，不填则沿用 `ZHIPU_MODEL` |
 | `ZHIPU_AUTH_MODE` | 否 | `auto`（默认）/ `jwt` / `raw` |
 | `ZHIPU_JWT_TTL_SECONDS` | 否 | JWT 有效期，默认 3600 秒 |
-| `ZHIPU_TIMEOUT_MS` | 否 | 上游超时，默认 8000 毫秒 |
+| `ZHIPU_TIMEOUT_MS` | 否 | 上游超时，默认 25000 毫秒 |
 | `PORT` | 否 | 本地端口；Vercel / Render 自动注入 |
 | `RATE_LIMIT_MAX` | 否 | 限流次数，默认 5 次/分钟 |
 | `RATE_LIMIT_WINDOW_MS` | 否 | 限流窗口，默认 60000 毫秒 |
@@ -184,10 +184,10 @@ JWT Header：`{"alg":"HS256","typ":"JWT","sign_type":"SIGN"}`。如果只有 32 
 ## 保护与隐私
 
 - **限流**：同一 IP 默认每分钟 5 次，`express-rate-limit` 内存存储。
-- **超时**：上游请求默认 8 秒，超时返回 `AI卡壳了，请稍后再试`。
+- **超时**：上游请求默认 25 秒，超时返回 `AI卡壳了，请稍后再试`。
 - **输出长度**：`max_tokens` 上限固定为 1024，兼容 `glm-4v-flash` 的 `[1,1024]` 限制。
 - **并发兜底**：进程内单并发闸门；上游 429 / 错误码 `1302` 转成友好 JSON。
-- **图片**：前端 Canvas 压缩，宽度 ≤ 800px，目标小于 1.8MB；服务端只接受 JPG / PNG / WebP data URL。
+- **图片**：前端 Canvas 压缩，宽度 ≤ 760px，目标小于 1.3MB；服务端只接受 JPG / PNG / WebP data URL。
 - **不落盘**：不写数据库、不写文件、不记录截图或文字；Service Worker 不缓存 `/api/`。
 - **无本地存储**：前端不使用 LocalStorage / SessionStorage，刷新即清空。
 - **Prompt 安全**：截图和文字都作为待分析素材，Prompt 明确忽略其中的指令注入；后端校验 JSON 结构，非法输出不透传。
@@ -214,7 +214,7 @@ Service Worker 只缓存 `index.html`、manifest 和图标；分析接口与用�
 4. 环境变量添加 `ZHIPU_API_KEY`，可选 `ZHIPU_MODEL` / `ZHIPU_AUTH_MODE`。
 5. 点击 `Deploy`。
 
-Vercel 会静态托管 `index.html`、`manifest.json`、`sw.js`、`icons/`，并把 `api/analyze.js`、`api/topics.js`、`api/healthz.js` 识别为 Serverless Functions。`vercel.json` 已把函数最大执行时间设为 10 秒，并补上 PWA 所需的 CSP、`worker-src`、`manifest-src` 和 `sw.js` 缓存头。
+Vercel 会静态托管 `index.html`、`manifest.json`、`sw.js`、`icons/`，并把 `api/analyze.js`、`api/topics.js`、`api/healthz.js` 识别为 Serverless Functions。`vercel.json` 已把分析函数最大执行时间设为 30 秒，并补上 PWA 所需的 CSP、`worker-src`、`manifest-src` 和 `sw.js` 缓存头。
 
 > `PORT` 不需要在 Vercel / Render 中配置，平台会自动注入。
 
@@ -269,7 +269,7 @@ Web Speech API 需要浏览器支持且页面运行在 HTTPS（localhost 除外�
 
 ### Vercel 报 `FUNCTION_INVOCATION_TIMEOUT`
 
-后端上游超时为 8 秒，Vercel 函数上限 10 秒，正常应返回 JSON。若持续超时，检查 Key 是否有效、智谱接口是否变慢，或临时调低 `ZHIPU_TIMEOUT_MS`。
+后端上游超时为 25 秒，Vercel 分析函数上限 30 秒，正常应返回 JSON。若手机端仍提示「AI卡壳了」，优先尝试：只发文字、把截图截短一点、换 Wi-Fi/5G 再试；也可以看服务端日志确认是否是 25 秒超时。
 
 ## 免责声明
 
